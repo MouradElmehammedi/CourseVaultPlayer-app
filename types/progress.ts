@@ -33,4 +33,5 @@ export type AppStorage = {
   version: 1;
   courses: Record<string, CourseProgress>;
   settings: AppSettings;
+  lastCourseId: string | null;
 };

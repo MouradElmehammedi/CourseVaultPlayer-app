@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "CourseVault Player | Private Local Course Player",
+  title: "LearnVault Player | Private Local Course Player",
   description:
     "A private local course player for downloaded videos and audio lessons.",
 };
@@ -34,8 +34,8 @@ export default function LandingPage() {
       <section className="landing-hero">
         <nav className="landing-nav" aria-label="Landing navigation">
           <Link className="landing-brand" href="/">
-            <span>CV</span>
-            CourseVault Player
+            <span>LV</span>
+            LearnVault Player
           </Link>
           <Link className="landing-nav-link" href="/">
             Open app
@@ -75,10 +75,11 @@ export default function LandingPage() {
             <LockKeyhole aria-hidden="true" size={16} />
             Private local course player
           </div>
-          <h1>CourseVault Player</h1>
+          <h1>LearnVault Player</h1>
           <p>
-            A clean way to watch downloaded courses, play local lessons, and
-            keep progress without accounts, uploads, or a backend.
+            Open a folder. Keep your place. A clean way to watch downloaded
+            courses, play local lessons, and keep progress without accounts,
+            uploads, or a backend.
           </p>
           <div className="landing-actions">
             <Link className="btn-primary h-12 px-6" href="/">

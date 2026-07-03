@@ -311,14 +311,14 @@ export function CourseSidebar({
             {completion.percent}%
           </span>
         </div>
-        <label className="relative block">
+        <label className="course-search-field relative block">
           <Search
             aria-hidden="true"
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]"
+            className="course-search-icon absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]"
             size={17}
           />
           <input
-            className="field h-11 pl-10"
+            className="field course-search-input h-11"
             onChange={(event) => onSearchQueryChange(event.target.value)}
             placeholder="Search lectures..."
             type="search"

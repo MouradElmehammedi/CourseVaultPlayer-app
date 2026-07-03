@@ -2,13 +2,16 @@ import type { Course } from "@/types/course";
 import type { AppStorage, CourseProgress, LectureProgress } from "@/types/progress";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 
-export const STORAGE_KEY = "coursevault:v1:progress";
+export const STORAGE_KEY = "learnvault:v1:progress";
+
+const LEGACY_STORAGE_KEYS = ["coursevault:v1:progress"];
 
 export function createDefaultStorage(): AppStorage {
   return {
     version: 1,
     courses: {},
     settings: DEFAULT_SETTINGS,
+    lastCourseId: null,
   };
 }
 
@@ -29,6 +32,7 @@ export function normalizeStorage(value: unknown): AppStorage {
     version: 1,
     courses: value.courses as Record<string, CourseProgress>,
     settings,
+    lastCourseId: typeof value.lastCourseId === "string" ? value.lastCourseId : null,
   };
 }
 
@@ -39,7 +43,22 @@ export function loadStorage(): AppStorage {
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? normalizeStorage(JSON.parse(raw)) : createDefaultStorage();
+
+    if (raw) {
+      return normalizeStorage(JSON.parse(raw));
+    }
+
+    for (const legacyKey of LEGACY_STORAGE_KEYS) {
+      const legacyRaw = window.localStorage.getItem(legacyKey);
+
+      if (legacyRaw) {
+        const legacyStorage = normalizeStorage(JSON.parse(legacyRaw));
+        saveStorage(legacyStorage);
+        return legacyStorage;
+      }
+    }
+
+    return createDefaultStorage();
   } catch {
     return createDefaultStorage();
   }
@@ -65,6 +84,9 @@ export function clearStorage(): boolean {
 
   try {
     window.localStorage.removeItem(STORAGE_KEY);
+    LEGACY_STORAGE_KEYS.forEach((legacyKey) => {
+      window.localStorage.removeItem(legacyKey);
+    });
     return true;
   } catch {
     return false;

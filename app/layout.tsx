@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "CourseVault Player",
+  title: "LearnVault Player",
   description: "A private local course media player with browser-saved progress.",
 };
 
@@ -27,7 +27,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var r=localStorage.getItem("coursevault:v1:progress");var s=r?JSON.parse(r).settings:null;var p=s&&s.theme?s.theme:"light";var t=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p;document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");document.documentElement.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`,
+            __html: `(function(){try{var k=["learnvault:v1:progress","coursevault:v1:progress"];var r=null;for(var i=0;i<k.length;i++){r=localStorage.getItem(k[i]);if(r)break}var s=r?JSON.parse(r).settings:null;var p=s&&s.theme?s.theme:"light";var t=p==="system"?(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"):p;document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");document.documentElement.style.colorScheme=t==="dark"?"dark":"light"}catch(e){}})()`,
           }}
         />
       </head>

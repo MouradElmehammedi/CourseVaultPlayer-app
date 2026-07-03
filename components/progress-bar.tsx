@@ -13,11 +13,11 @@ export function ProgressBar({ value, label, className = "" }: ProgressBarProps) 
       aria-valuemax={100}
       aria-valuemin={0}
       aria-valuenow={normalizedValue}
-      className={`h-2 overflow-hidden rounded-full bg-[var(--line)] ${className}`}
+      className={`h-2 overflow-hidden rounded-[3px] bg-[var(--line)] ${className}`}
       role="progressbar"
     >
       <div
-        className="h-full rounded-full bg-[var(--primary)] transition-[width] duration-500"
+        className="h-full rounded-[3px] bg-[var(--primary)] transition-[width] duration-500"
         style={{ width: `${normalizedValue}%` }}
       />
     </div>
