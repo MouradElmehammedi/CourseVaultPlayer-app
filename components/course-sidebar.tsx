@@ -11,7 +11,6 @@ import {
   PlayCircle,
   Search,
   Video,
-  X,
 } from "lucide-react";
 import { useMemo } from "react";
 import { formatDuration } from "@/lib/media-utils";
@@ -26,9 +25,7 @@ type CourseSidebarProps = {
   course: Course;
   courseProgress?: CourseProgress;
   expandedSections: Record<string, boolean>;
-  mobile?: boolean;
   searchQuery: string;
-  onCloseMobile?: () => void;
   onSearchQueryChange: (query: string) => void;
   onSelectLecture: (lectureId: string) => void;
   onToggleSection: (sectionId: string) => void;
@@ -260,9 +257,7 @@ export function CourseSidebar({
   course,
   courseProgress,
   expandedSections,
-  mobile = false,
   searchQuery,
-  onCloseMobile,
   onSearchQueryChange,
   onSelectLecture,
   onToggleSection,
@@ -278,9 +273,7 @@ export function CourseSidebar({
   );
 
   return (
-    <aside
-      className={`course-sidebar ${mobile ? "h-full w-full" : "hidden lg:flex"}`}
-    >
+    <aside className="course-sidebar flex">
       <div className="flex items-start justify-between gap-3 border-b border-[var(--line)] p-4">
         <div>
           <h2 className="text-base font-bold text-[var(--text)]">Course Content</h2>
@@ -288,16 +281,6 @@ export function CourseSidebar({
             {completion.completedLectures} / {completion.totalLectures} completed
           </p>
         </div>
-        {mobile ? (
-          <button
-            aria-label="Close course content"
-            className="icon-button"
-            onClick={onCloseMobile}
-            type="button"
-          >
-            <X aria-hidden="true" size={18} />
-          </button>
-        ) : null}
       </div>
 
       <div className="border-b border-[var(--line)] p-4">

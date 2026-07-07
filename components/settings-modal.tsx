@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Settings, Trash2, Upload, X } from "lucide-react";
+import { Download, Settings, Timer, Trash2, Upload, X } from "lucide-react";
 import type { AppSettings } from "@/types/settings";
 import { PLAYBACK_RATES } from "@/lib/media-utils";
 
@@ -167,6 +167,35 @@ export function SettingsModal({
                 }
                 type="checkbox"
               />
+            </label>
+          </section>
+
+          <section className="settings-section sm:col-span-2">
+            <div className="flex items-center gap-3">
+              <span className="grid size-9 place-items-center rounded-lg bg-[var(--soft)] text-[var(--primary)]">
+                <Timer aria-hidden="true" size={18} />
+              </span>
+              <h3 className="settings-title mb-0">Pomodoro Timer</h3>
+            </div>
+
+            <label className="field-label">
+              Focus length in minutes
+              <input
+                className="field"
+                max={180}
+                min={1}
+                onChange={(event) =>
+                  onUpdateSettings({
+                    pomodoroMinutes: Number(event.target.value),
+                  })
+                }
+                step={1}
+                type="number"
+                value={settings.pomodoroMinutes}
+              />
+              <span className="switch-help">
+                Break length is fixed at 5 minutes.
+              </span>
             </label>
           </section>
 

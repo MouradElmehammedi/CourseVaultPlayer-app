@@ -1,47 +1,227 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import {
-  Download,
   FolderOpen,
   Home,
   ListVideo,
-  Moon,
-  PowerOff,
+  Pause,
+  Play,
+  RotateCcw,
   Settings,
-  Sun,
-  Upload,
+  Timer,
 } from "lucide-react";
 import type { Course } from "@/types/course";
-import type { AppSettings } from "@/types/settings";
 
 type TopBarProps = {
   course: Course | null;
   completionPercent: number;
-  resolvedTheme: "light" | "dark";
-  theme: AppSettings["theme"];
-  onExport: () => void;
+  courseContentVisible: boolean;
+  pomodoroMinutes: number;
   onHome: () => void;
-  onImport: () => void;
-  onOpenCourseContent: () => void;
   onPickFolder: () => void;
   onSettings: () => void;
-  onToggleTheme: () => void;
+  onToggleCourseContent: () => void;
 };
+
+type PomodoroTimerProps = {
+  minutes: number;
+  totalSeconds: number;
+};
+
+type PomodoroMode = "focus" | "break";
+
+type PomodoroTimerState = {
+  mode: PomodoroMode;
+  running: boolean;
+  seconds: number;
+};
+
+const POMODORO_BREAK_SECONDS = 5 * 60;
+const FOCUS_END_SOUND_SRC = "/sounds/cute_sound.mp3";
+const BREAK_END_SOUND_SRC = "/sounds/ding_ding_ding_ding.mp3";
+
+function getPomodoroSeconds(minutes: number): number {
+  const normalizedMinutes = Number.isFinite(minutes)
+    ? Math.min(180, Math.max(1, Math.round(minutes)))
+    : 25;
+
+  return normalizedMinutes * 60;
+}
+
+function formatPomodoro(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+}
+
+function playTimerSound(audio: HTMLAudioElement | null) {
+  if (!audio) {
+    return;
+  }
+
+  audio.currentTime = 0;
+  void audio.play().catch(() => undefined);
+}
+
+function PomodoroTimer({ minutes, totalSeconds }: PomodoroTimerProps) {
+  const focusEndAudioRef = useRef<HTMLAudioElement | null>(null);
+  const breakEndAudioRef = useRef<HTMLAudioElement | null>(null);
+  const previousTimerRef = useRef<PomodoroTimerState | null>(null);
+  const [timer, setTimer] = useState<PomodoroTimerState>({
+    mode: "focus",
+    running: false,
+    seconds: totalSeconds,
+  });
+  const isAtFocusStart =
+    timer.mode === "focus" && !timer.running && timer.seconds === totalSeconds;
+  const modeLabel = timer.mode === "focus" ? "Focus" : "Break";
+
+  useEffect(() => {
+    if (!timer.running) {
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setTimer((current) => {
+        if (!current.running) {
+          return current;
+        }
+
+        const nextSeconds = Math.max(current.seconds - 1, 0);
+
+        if (nextSeconds === 0 && current.mode === "focus") {
+          return {
+            mode: "break",
+            running: true,
+            seconds: POMODORO_BREAK_SECONDS,
+          };
+        }
+
+        if (nextSeconds === 0) {
+          return {
+            mode: "focus",
+            running: false,
+            seconds: totalSeconds,
+          };
+        }
+
+        return {
+          ...current,
+          seconds: nextSeconds,
+        };
+      });
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [timer.running, totalSeconds]);
+
+  useEffect(() => {
+    const previousTimer = previousTimerRef.current;
+
+    if (
+      previousTimer?.mode === "focus" &&
+      previousTimer.running &&
+      previousTimer.seconds === 1 &&
+      timer.mode === "break"
+    ) {
+      playTimerSound(focusEndAudioRef.current);
+    }
+
+    if (
+      previousTimer?.mode === "break" &&
+      previousTimer.running &&
+      previousTimer.seconds === 1 &&
+      timer.mode === "focus" &&
+      !timer.running
+    ) {
+      playTimerSound(breakEndAudioRef.current);
+    }
+
+    previousTimerRef.current = timer;
+  }, [timer]);
+
+  const togglePomodoro = () => {
+    setTimer((current) => {
+      return {
+        ...current,
+        running: !current.running,
+      };
+    });
+  };
+
+  const resetPomodoro = () => {
+    setTimer({
+      mode: "focus",
+      running: false,
+      seconds: totalSeconds,
+    });
+  };
+
+  return (
+    <div
+      className="pomodoro-control"
+      title={`Pomodoro: ${Math.round(minutes)} minute focus, 5 minute break`}
+    >
+      <audio preload="auto" ref={focusEndAudioRef} src={FOCUS_END_SOUND_SRC} />
+      <audio preload="auto" ref={breakEndAudioRef} src={BREAK_END_SOUND_SRC} />
+      <button
+        aria-label={
+          timer.running
+            ? `Pause ${modeLabel.toLowerCase()} timer`
+            : `Start ${modeLabel.toLowerCase()} timer`
+        }
+        className={`pomodoro-pill ${timer.running ? "pomodoro-running" : ""} ${
+          timer.mode === "break" ? "pomodoro-break" : ""
+        }`}
+        onClick={togglePomodoro}
+        type="button"
+      >
+        <Timer aria-hidden="true" size={16} />
+        <span className="pomodoro-time-group">
+          <span className="pomodoro-time">{formatPomodoro(timer.seconds)}</span>
+          <span className="pomodoro-mode">{modeLabel}</span>
+        </span>
+        {timer.running ? (
+          <Pause
+            aria-hidden="true"
+            className="pomodoro-state-icon"
+            size={15}
+          />
+        ) : (
+          <Play
+            aria-hidden="true"
+            className="pomodoro-state-icon"
+            size={15}
+          />
+        )}
+      </button>
+      <button
+        aria-label="Reset Pomodoro timer"
+        className="pomodoro-reset"
+        disabled={isAtFocusStart}
+        onClick={resetPomodoro}
+        type="button"
+      >
+        <RotateCcw aria-hidden="true" size={15} />
+      </button>
+    </div>
+  );
+}
 
 export function TopBar({
   course,
   completionPercent,
-  resolvedTheme,
-  theme,
-  onExport,
+  courseContentVisible,
+  pomodoroMinutes,
   onHome,
-  onImport,
-  onOpenCourseContent,
   onPickFolder,
   onSettings,
-  onToggleTheme,
+  onToggleCourseContent,
 }: TopBarProps) {
+  const pomodoroTotalSeconds = getPomodoroSeconds(pomodoroMinutes);
+
   return (
     <header className="app-header sticky top-0 z-30 border-b border-[var(--line)] backdrop-blur-xl">
       <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6">
@@ -49,7 +229,7 @@ export function TopBar({
           <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[var(--primary)] text-[var(--primary-contrast)] shadow-sm">
             LV
           </div>
-          <div className="min-w-0">
+          <div className="app-brand-copy min-w-0">
             <p className="text-sm font-semibold text-[var(--text)]">
               LearnVault Player
             </p>
@@ -86,39 +266,31 @@ export function TopBar({
           >
             <Home aria-hidden="true" size={18} />
           </button>
-          <Link
-            aria-label="Open landing page"
-            className="icon-button"
-            href="/landing"
-            title="Landing page"
-          >
-            <PowerOff aria-hidden="true" size={18} />
-          </Link>
           {course ? (
             <button
-              aria-label="Open course content"
-              className="icon-button lg:hidden"
-              onClick={onOpenCourseContent}
-              title="Course content"
+              aria-label={
+                courseContentVisible
+                  ? "Hide course content and expand player"
+                  : "Show course content"
+              }
+              aria-pressed={courseContentVisible}
+              className="icon-button"
+              onClick={onToggleCourseContent}
+              title={
+                courseContentVisible
+                  ? "Hide course content"
+                  : "Show course content"
+              }
               type="button"
             >
               <ListVideo aria-hidden="true" size={18} />
             </button>
           ) : null}
-          <button
-            aria-label={resolvedTheme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            className="theme-toggle"
-            onClick={onToggleTheme}
-            title={`Theme: ${theme}`}
-            type="button"
-          >
-            <span className={resolvedTheme === "dark" ? "" : "theme-toggle-active"}>
-              <Sun aria-hidden="true" size={15} />
-            </span>
-            <span className={resolvedTheme === "dark" ? "theme-toggle-active" : ""}>
-              <Moon aria-hidden="true" size={15} />
-            </span>
-          </button>
+          <PomodoroTimer
+            key={pomodoroTotalSeconds}
+            minutes={pomodoroMinutes}
+            totalSeconds={pomodoroTotalSeconds}
+          />
           <button
             className="btn-secondary hidden sm:inline-flex"
             onClick={onPickFolder}
@@ -134,22 +306,6 @@ export function TopBar({
             type="button"
           >
             <FolderOpen aria-hidden="true" size={18} />
-          </button>
-          <button
-            aria-label="Export progress"
-            className="icon-button"
-            onClick={onExport}
-            type="button"
-          >
-            <Download aria-hidden="true" size={18} />
-          </button>
-          <button
-            aria-label="Import progress"
-            className="icon-button"
-            onClick={onImport}
-            type="button"
-          >
-            <Upload aria-hidden="true" size={18} />
           </button>
           <button
             aria-label="Settings"

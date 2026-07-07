@@ -84,11 +84,10 @@ export function AppShell() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
   const [courseIdPendingDelete, setCourseIdPendingDelete] = useState<string | null>(null);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [courseContentVisible, setCourseContentVisible] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [storage, setStorageState] = useState<AppStorage>(() => createDefaultStorage());
   const [storageReady, setStorageReady] = useState(false);
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
 
   const setFolderInputRef = useCallback((node: HTMLInputElement | null) => {
     folderInputRef.current = node;
@@ -121,7 +120,7 @@ export function AppShell() {
     queueMicrotask(() => {
       const loadedStorage = loadStorage();
       setStorageState(loadedStorage);
-      setResolvedTheme(resolveTheme(loadedStorage.settings.theme));
+      applyTheme(loadedStorage.settings.theme);
       setStorageReady(true);
     });
 
@@ -189,8 +188,7 @@ export function AppShell() {
     }
 
     const updateTheme = () => {
-      const nextTheme = applyTheme(settings.theme);
-      setResolvedTheme(nextTheme);
+      applyTheme(settings.theme);
     };
 
     queueMicrotask(updateTheme);
@@ -378,7 +376,6 @@ export function AppShell() {
   const selectLecture = useCallback(
     (lectureId: string) => {
       setActiveLectureId(lectureId);
-      setMobileSidebarOpen(false);
 
       if (!course) {
         return;
@@ -444,7 +441,6 @@ export function AppShell() {
     autoRestoreAttemptedRef.current = true;
     setCourse(null);
     setActiveLectureId(null);
-    setMobileSidebarOpen(false);
     persistStorage((current) => ({
       ...current,
       lastCourseId: null,
@@ -639,10 +635,6 @@ export function AppShell() {
     [persistStorage],
   );
 
-  const toggleTheme = useCallback(() => {
-    updateSettings({ theme: resolvedTheme === "dark" ? "light" : "dark" });
-  }, [resolvedTheme, updateSettings]);
-
   const renameCourse = useCallback(
     (courseId: string, name: string) => {
       const trimmedName = name.trim();
@@ -730,7 +722,6 @@ export function AppShell() {
       void clearCourseDirectoryHandles();
       setStorageState(createDefaultStorage());
       applyTheme("light");
-      setResolvedTheme("light");
       setStorageReady(true);
       setError(null);
       setConfirmAction(null);
@@ -892,15 +883,14 @@ export function AppShell() {
         <TopBar
           completionPercent={0}
           course={null}
-          resolvedTheme={resolvedTheme}
-          theme={settings.theme}
-          onExport={exportProgress}
+          courseContentVisible={courseContentVisible}
+          pomodoroMinutes={settings.pomodoroMinutes}
           onHome={goHome}
-          onImport={importProgress}
-          onOpenCourseContent={() => undefined}
           onPickFolder={() => void pickFolder()}
           onSettings={() => setSettingsOpen(true)}
-          onToggleTheme={toggleTheme}
+          onToggleCourseContent={() =>
+            setCourseContentVisible((current) => !current)
+          }
         />
         <EmptyState
           courses={savedCourses}
@@ -933,6 +923,11 @@ export function AppShell() {
       }
     />
   );
+  const courseGridClass = courseContentVisible
+    ? settings.sidebarPosition === "left"
+      ? "lg:grid-cols-[minmax(360px,420px)_minmax(0,1fr)]"
+      : "lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
+    : "course-layout-expanded lg:grid-cols-1";
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
@@ -941,15 +936,14 @@ export function AppShell() {
       <TopBar
         completionPercent={completion.percent}
         course={course}
-        resolvedTheme={resolvedTheme}
-        theme={settings.theme}
-        onExport={exportProgress}
+        courseContentVisible={courseContentVisible}
+        pomodoroMinutes={settings.pomodoroMinutes}
         onHome={goHome}
-        onImport={importProgress}
-        onOpenCourseContent={() => setMobileSidebarOpen(true)}
         onPickFolder={() => void pickFolder()}
         onSettings={() => setSettingsOpen(true)}
-        onToggleTheme={toggleTheme}
+        onToggleCourseContent={() =>
+          setCourseContentVisible((current) => !current)
+        }
       />
 
       {error ? (
@@ -961,13 +955,9 @@ export function AppShell() {
       ) : null}
 
       <main
-        className={`mx-auto grid max-w-[1800px] gap-5 px-4 py-5 sm:px-6 ${
-          settings.sidebarPosition === "left"
-            ? "lg:grid-cols-[minmax(360px,420px)_minmax(0,1fr)]"
-            : "lg:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
-        }`}
+        className={`mx-auto grid max-w-[1800px] gap-5 px-4 py-5 sm:px-6 ${courseGridClass}`}
       >
-        {settings.sidebarPosition === "left" ? sidebar : null}
+        {courseContentVisible && settings.sidebarPosition === "left" ? sidebar : null}
         <MediaPlayer
           lecture={activeLecture}
           nextLecture={nextLecture}
@@ -984,33 +974,8 @@ export function AppShell() {
           onSelectLecture={selectLecture}
           onSettingsChange={updateSettings}
         />
-        {settings.sidebarPosition === "right" ? sidebar : null}
+        {courseContentVisible && settings.sidebarPosition === "right" ? sidebar : null}
       </main>
-
-      {mobileSidebarOpen ? (
-        <div className="fixed inset-0 z-40 bg-slate-950/45 backdrop-blur-sm">
-          <div className="ml-auto h-full w-full max-w-md bg-[var(--panel)] shadow-2xl">
-            <CourseSidebar
-              activeLectureId={activeLectureId}
-              compact={settings.compactSidebar}
-              course={course}
-              courseProgress={courseProgress}
-              expandedSections={expandedSections}
-              mobile
-              searchQuery={searchQuery}
-              onCloseMobile={() => setMobileSidebarOpen(false)}
-              onSearchQueryChange={setSearchQuery}
-              onSelectLecture={selectLecture}
-              onToggleSection={(sectionId) =>
-                setExpandedSections((current) => ({
-                  ...current,
-                  [sectionId]: !(current[sectionId] ?? true),
-                }))
-              }
-            />
-          </div>
-        </div>
-      ) : null}
 
       {sharedDialogs}
     </div>

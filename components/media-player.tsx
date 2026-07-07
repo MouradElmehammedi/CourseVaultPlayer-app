@@ -62,6 +62,7 @@ export function MediaPlayer({
   const mediaRef = useRef<HTMLAudioElement | HTMLVideoElement | null>(null);
   const lastSavedAtRef = useRef(0);
   const playStartedRef = useRef(false);
+  const autoplayNextLectureRef = useRef(false);
   const progressRef = useRef(progress);
   const thresholdRef = useRef(settings.autoMarkCompletedAt);
   const [sourceUrl, setSourceUrl] = useState<string | null>(null);
@@ -140,6 +141,7 @@ export function MediaPlayer({
     if (!lecture || isUnsupported) {
       queueMicrotask(() => {
         if (!cancelled) {
+          autoplayNextLectureRef.current = false;
           setSourceUrl(null);
         }
       });
@@ -208,11 +210,14 @@ export function MediaPlayer({
 
     if (progress?.currentTime && !progress.completed) {
       media.currentTime = Math.min(progress.currentTime, Math.max(0, duration - 2));
-      return;
+    } else if (progress?.completed && progress.currentTime > 0) {
+      setShowResumePrompt(true);
     }
 
-    if (progress?.completed && progress.currentTime > 0) {
-      setShowResumePrompt(true);
+    if (autoplayNextLectureRef.current) {
+      autoplayNextLectureRef.current = false;
+      setShowResumePrompt(false);
+      void media.play().catch(() => undefined);
     }
   };
 
@@ -236,6 +241,7 @@ export function MediaPlayer({
     persistFromMedia({ completed: true, percent: 100 });
 
     if (settings.autoplayNext && nextLecture) {
+      autoplayNextLectureRef.current = true;
       onSelectLecture(nextLecture.id);
     }
   };
