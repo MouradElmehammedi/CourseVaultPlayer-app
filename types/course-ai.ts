@@ -18,6 +18,8 @@ export type CoursePlanApiRequest = {
   estimatedRemainingMinutes: number;
   dailyRuntimeMinutes: number;
   dailyRealMinutes: number;
+  watchedTodayMinutes: number;
+  remainingTodayMinutes: number;
   confidence: CoursePlanConfidence;
   missingDurationCount: number;
   upcomingLectures: CoursePlanApiLecture[];

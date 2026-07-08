@@ -126,6 +126,14 @@ function normalizeRequest(value: unknown): CoursePlanApiRequest | null {
     ),
     dailyRuntimeMinutes: Math.max(0, toFiniteNumber(value.dailyRuntimeMinutes, 0)),
     dailyRealMinutes: Math.max(0, toFiniteNumber(value.dailyRealMinutes, 0)),
+    watchedTodayMinutes: Math.max(
+      0,
+      toFiniteNumber(value.watchedTodayMinutes, 0),
+    ),
+    remainingTodayMinutes: Math.max(
+      0,
+      toFiniteNumber(value.remainingTodayMinutes, 0),
+    ),
     confidence,
     missingDurationCount: Math.max(
       0,
@@ -148,6 +156,7 @@ function buildFallbackAdvice(plan: CoursePlanApiRequest): CoursePlanAiAdvice {
     headline: `Watch about ${formatMinutes(plan.dailyRuntimeMinutes)} of course content per day to finish in ${plan.targetDays} days.`,
     dailyPlan: [
       `${formatMinutes(plan.dailyRuntimeMinutes)} of course runtime is about ${formatMinutes(plan.dailyRealMinutes)} at ${plan.playbackRate}x playback.`,
+      `Today you have watched ${formatMinutes(plan.watchedTodayMinutes)}, with ${formatMinutes(plan.remainingTodayMinutes)} left for today's goal.`,
       `That pace is roughly ${plan.remainingLectures / plan.targetDays < 1 ? "less than one" : Math.ceil(plan.remainingLectures / plan.targetDays)} lecture(s) per day.`,
     ],
     pacing: [

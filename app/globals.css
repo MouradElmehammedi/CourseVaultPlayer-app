@@ -572,6 +572,82 @@ textarea.field {
   overflow-wrap: anywhere;
 }
 
+.ai-today-progress {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.ai-today-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.ai-today-head span,
+.ai-today-grid span {
+  color: var(--muted);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.ai-today-head strong {
+  color: var(--text);
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 900;
+  line-height: 1.2;
+  margin-top: 0.2rem;
+}
+
+.ai-today-head > span {
+  color: var(--primary);
+  font-size: 0.95rem;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.ai-today-meter {
+  background: var(--field-bg);
+  border-radius: 999px;
+  height: 0.55rem;
+  margin-top: 0.85rem;
+  overflow: hidden;
+}
+
+.ai-today-meter span {
+  background: var(--success);
+  border-radius: inherit;
+  display: block;
+  height: 100%;
+  transition: width 220ms ease;
+}
+
+.ai-today-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.9rem;
+}
+
+.ai-today-grid div {
+  min-width: 0;
+}
+
+.ai-today-grid strong {
+  color: var(--text);
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
 .ai-plan-summary {
   border-bottom: 1px solid var(--line);
   border-top: 1px solid var(--line);
@@ -1335,6 +1411,7 @@ input.field.course-search-input {
   }
 
   .ai-metrics-grid,
+  .ai-today-grid,
   .ai-plan-summary,
   .ai-advice-grid {
     grid-template-columns: 1fr;

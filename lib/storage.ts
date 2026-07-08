@@ -1,10 +1,12 @@
 import type { Course } from "@/types/course";
 import type { AppStorage, CourseProgress, LectureProgress } from "@/types/progress";
+import { getLocalActivityDate } from "@/lib/progress";
 import { DEFAULT_SETTINGS } from "@/types/settings";
 
 export const STORAGE_KEY = "learnvault:v1:progress";
 
 const LEGACY_STORAGE_KEYS = ["coursevault:v1:progress"];
+const MAX_DAILY_ACTIVITY_DAYS = 120;
 
 export function createDefaultStorage(): AppStorage {
   return {
@@ -27,10 +29,23 @@ export function normalizeStorage(value: unknown): AppStorage {
   const settings = isObject(value.settings)
     ? { ...DEFAULT_SETTINGS, ...value.settings }
     : DEFAULT_SETTINGS;
+  const courses = Object.fromEntries(
+    Object.entries(value.courses as Record<string, CourseProgress>).map(
+      ([courseId, courseProgress]) => [
+        courseId,
+        {
+          ...courseProgress,
+          lectures: courseProgress.lectures ?? {},
+          notes: courseProgress.notes ?? {},
+          dailyActivity: courseProgress.dailyActivity ?? {},
+        },
+      ],
+    ),
+  );
 
   return {
     version: 1,
-    courses: value.courses as Record<string, CourseProgress>,
+    courses,
     settings,
     lastCourseId: typeof value.lastCourseId === "string" ? value.lastCourseId : null,
   };
@@ -104,6 +119,7 @@ export function createCourseProgress(course: Course): CourseProgress {
     lastOpenedAt: new Date().toISOString(),
     lectures: {},
     notes: {},
+    dailyActivity: {},
   };
 }
 
@@ -120,6 +136,7 @@ export function ensureCourseProgress(
         totalLectures: course.totalLectures,
         lastOpenedAt: new Date().toISOString(),
         notes: existing.notes ?? {},
+        dailyActivity: existing.dailyActivity ?? {},
       }
     : createCourseProgress(course);
 
@@ -142,6 +159,46 @@ export function updateCourseProgressCounts(
   return {
     ...courseProgress,
     completedLectures,
+  };
+}
+
+export function addCourseDailyActivity(
+  courseProgress: CourseProgress,
+  watchedSeconds: number,
+  date = new Date(),
+): CourseProgress {
+  if (!Number.isFinite(watchedSeconds) || watchedSeconds <= 0) {
+    return {
+      ...courseProgress,
+      dailyActivity: courseProgress.dailyActivity ?? {},
+    };
+  }
+
+  const dateKey = getLocalActivityDate(date);
+  const currentActivity = courseProgress.dailyActivity ?? {};
+  const nextActivity = {
+    ...currentActivity,
+    [dateKey]: {
+      date: dateKey,
+      watchedSeconds:
+        (currentActivity[dateKey]?.watchedSeconds ?? 0) + watchedSeconds,
+      updatedAt: date.toISOString(),
+    },
+  };
+  const activityDates = Object.keys(nextActivity).sort();
+
+  if (activityDates.length > MAX_DAILY_ACTIVITY_DAYS) {
+    for (const staleDate of activityDates.slice(
+      0,
+      activityDates.length - MAX_DAILY_ACTIVITY_DAYS,
+    )) {
+      delete nextActivity[staleDate];
+    }
+  }
+
+  return {
+    ...courseProgress,
+    dailyActivity: nextActivity,
   };
 }
 

@@ -17,6 +17,12 @@ export type LectureNote = {
   updatedAt: string;
 };
 
+export type CourseDailyActivity = {
+  date: string;
+  watchedSeconds: number;
+  updatedAt: string;
+};
+
 export type CourseProgress = {
   courseId: string;
   courseName: string;
@@ -27,6 +33,7 @@ export type CourseProgress = {
   lastOpenedAt: string;
   lectures: Record<string, LectureProgress>;
   notes: Record<string, LectureNote>;
+  dailyActivity: Record<string, CourseDailyActivity>;
 };
 
 export type AppStorage = {

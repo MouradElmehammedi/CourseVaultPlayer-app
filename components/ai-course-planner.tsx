@@ -18,6 +18,7 @@ import {
   normalizeTargetDays,
   type CoursePlan,
 } from "@/lib/course-plan";
+import { getDailyWatchedSeconds } from "@/lib/progress";
 import type { Course } from "@/types/course";
 import type {
   CoursePlanApiRequest,
@@ -66,7 +67,16 @@ function confidenceCopy(plan: CoursePlan): string {
   return `Estimated from ${formatPlanDuration(plan.averageLectureSeconds)} average lectures`;
 }
 
-function buildApiRequest(course: Course, plan: CoursePlan): CoursePlanApiRequest {
+function buildApiRequest(
+  course: Course,
+  plan: CoursePlan,
+  watchedTodaySeconds: number,
+): CoursePlanApiRequest {
+  const remainingTodaySeconds = Math.max(
+    0,
+    plan.dailyRuntimeSeconds - watchedTodaySeconds,
+  );
+
   return {
     courseName: course.name,
     targetDays: plan.targetDays,
@@ -78,6 +88,8 @@ function buildApiRequest(course: Course, plan: CoursePlan): CoursePlanApiRequest
     estimatedRemainingMinutes: Math.round(plan.estimatedRemainingSeconds / 60),
     dailyRuntimeMinutes: Math.round(plan.dailyRuntimeSeconds / 60),
     dailyRealMinutes: Math.round(plan.dailyRealTimeSeconds / 60),
+    watchedTodayMinutes: Math.round(watchedTodaySeconds / 60),
+    remainingTodayMinutes: Math.round(remainingTodaySeconds / 60),
     confidence: plan.confidence,
     missingDurationCount: plan.missingDurationCount,
     upcomingLectures: plan.remainingLecturesPreview.map((lecture) => ({
@@ -122,6 +134,16 @@ export function AiCoursePlanner({
     () => formatFinishDate(plan.targetDays),
     [plan.targetDays],
   );
+  const watchedTodaySeconds = getDailyWatchedSeconds(courseProgress);
+  const remainingTodaySeconds = Math.max(
+    0,
+    plan.dailyRuntimeSeconds - watchedTodaySeconds,
+  );
+  const todayProgressPercent =
+    plan.dailyRuntimeSeconds > 0
+      ? Math.min(100, Math.round((watchedTodaySeconds / plan.dailyRuntimeSeconds) * 100))
+      : 100;
+  const realTimeLeftToday = remainingTodaySeconds / plan.playbackRate;
   const planKey = `${course.id}:${plan.targetDays}:${Math.round(
     plan.estimatedRemainingSeconds,
   )}:${plan.playbackRate}`;
@@ -139,7 +161,7 @@ export function AiCoursePlanner({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(buildApiRequest(course, plan)),
+        body: JSON.stringify(buildApiRequest(course, plan, watchedTodaySeconds)),
       });
 
       if (!apiResponse.ok) {
@@ -232,6 +254,37 @@ export function AiCoursePlanner({
           <Target aria-hidden="true" size={18} />
           <span>Pace</span>
           <strong>{formatLecturePace(plan)}</strong>
+        </div>
+      </div>
+
+      <div className="ai-today-progress">
+        <div className="ai-today-head">
+          <div>
+            <span>Today</span>
+            <strong>
+              {remainingTodaySeconds <= 0
+                ? "Daily goal complete"
+                : `${formatPlanDuration(remainingTodaySeconds)} left today`}
+            </strong>
+          </div>
+          <span>{todayProgressPercent}%</span>
+        </div>
+        <div className="ai-today-meter" aria-label="Today watch progress">
+          <span style={{ width: `${todayProgressPercent}%` }} />
+        </div>
+        <div className="ai-today-grid">
+          <div>
+            <strong>{formatPlanDuration(watchedTodaySeconds)}</strong>
+            <span>watched today</span>
+          </div>
+          <div>
+            <strong>{formatPlanDuration(remainingTodaySeconds)}</strong>
+            <span>remaining today</span>
+          </div>
+          <div>
+            <strong>{formatPlanDuration(realTimeLeftToday)}</strong>
+            <span>real time left</span>
+          </div>
         </div>
       </div>
 

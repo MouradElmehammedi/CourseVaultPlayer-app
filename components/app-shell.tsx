@@ -22,6 +22,7 @@ import {
 import { parseCourseFiles } from "@/lib/course-parser";
 import { getCourseCompletion } from "@/lib/progress";
 import {
+  addCourseDailyActivity,
   clearStorage,
   createCourseProgress,
   createDefaultStorage,
@@ -37,6 +38,29 @@ import type { AppStorage, LectureProgress } from "@/types/progress";
 import type { AppSettings } from "@/types/settings";
 
 type ConfirmAction = "clear-all" | "clear-course" | "delete-saved-course" | null;
+const MAX_WATCHED_DELTA_SECONDS = 45;
+
+function getWatchedDeltaSeconds(
+  current: LectureProgress | undefined,
+  patch: Partial<LectureProgress> & { lectureId: string },
+): number {
+  if (
+    typeof patch.currentTime !== "number" ||
+    !Number.isFinite(patch.currentTime) ||
+    typeof current?.currentTime !== "number" ||
+    !Number.isFinite(current.currentTime)
+  ) {
+    return 0;
+  }
+
+  const delta = patch.currentTime - current.currentTime;
+
+  if (delta <= 0 || delta > MAX_WATCHED_DELTA_SECONDS) {
+    return 0;
+  }
+
+  return delta;
+}
 
 function buildExpandedSections(course: Course): Record<string, boolean> {
   const expanded: Record<string, boolean> = {};
@@ -493,19 +517,26 @@ export function AppShell() {
 
       persistStorage((current) => {
         const currentCourse = current.courses[course.id] ?? createCourseProgress(course);
+        const currentLecture = currentCourse.lectures[lectureId];
+        const watchedDeltaSeconds = getWatchedDeltaSeconds(currentLecture, patch);
         const merged = mergeLectureProgress(
-          currentCourse.lectures[lectureId],
+          currentLecture,
           patch,
         );
-        const nextCourse = updateCourseProgressCounts({
-          ...currentCourse,
-          lastLectureId: lectureId,
-          lastOpenedAt: new Date().toISOString(),
-          lectures: {
-            ...currentCourse.lectures,
-            [lectureId]: merged,
-          },
-        });
+        const nextCourse = updateCourseProgressCounts(
+          addCourseDailyActivity(
+            {
+              ...currentCourse,
+              lastLectureId: lectureId,
+              lastOpenedAt: new Date().toISOString(),
+              lectures: {
+                ...currentCourse.lectures,
+                [lectureId]: merged,
+              },
+            },
+            watchedDeltaSeconds,
+          ),
+        );
 
         return {
           ...current,
