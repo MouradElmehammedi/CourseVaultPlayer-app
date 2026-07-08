@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AiCoursePlanner } from "@/components/ai-course-planner";
 import { CourseSidebar } from "@/components/course-sidebar";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState, type SavedCourseSummary } from "@/components/empty-state";
@@ -958,22 +959,29 @@ export function AppShell() {
         className={`mx-auto grid max-w-[1800px] gap-5 px-4 py-5 sm:px-6 ${courseGridClass}`}
       >
         {courseContentVisible && settings.sidebarPosition === "left" ? sidebar : null}
-        <MediaPlayer
-          lecture={activeLecture}
-          nextLecture={nextLecture}
-          note={activeLecture ? courseProgress?.notes?.[activeLecture.id] : undefined}
-          previousLecture={previousLecture}
-          progress={
-            activeLecture ? courseProgress?.lectures[activeLecture.id] : undefined
-          }
-          settings={settings}
-          onMarkComplete={markLectureComplete}
-          onNoteChange={updateNote}
-          onPlayStarted={registerPlay}
-          onProgressUpdate={updateLectureProgress}
-          onSelectLecture={selectLecture}
-          onSettingsChange={updateSettings}
-        />
+        <div className="grid min-w-0 gap-5">
+          <MediaPlayer
+            lecture={activeLecture}
+            nextLecture={nextLecture}
+            note={activeLecture ? courseProgress?.notes?.[activeLecture.id] : undefined}
+            previousLecture={previousLecture}
+            progress={
+              activeLecture ? courseProgress?.lectures[activeLecture.id] : undefined
+            }
+            settings={settings}
+            onMarkComplete={markLectureComplete}
+            onNoteChange={updateNote}
+            onPlayStarted={registerPlay}
+            onProgressUpdate={updateLectureProgress}
+            onSelectLecture={selectLecture}
+            onSettingsChange={updateSettings}
+          />
+          <AiCoursePlanner
+            course={course}
+            courseProgress={courseProgress}
+            playbackRate={settings.defaultPlaybackRate}
+          />
+        </div>
         {courseContentVisible && settings.sidebarPosition === "right" ? sidebar : null}
       </main>
 
