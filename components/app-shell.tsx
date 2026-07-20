@@ -910,7 +910,7 @@ export function AppShell() {
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-[var(--bg)]">
+      <div className="app-workspace min-h-screen bg-[var(--bg)]">
         {sharedInputs}
         <TopBar
           completionPercent={0}
@@ -962,7 +962,7 @@ export function AppShell() {
     : "course-layout-expanded lg:grid-cols-1";
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
+    <div className="app-workspace min-h-screen bg-[var(--bg)]">
       {sharedInputs}
 
       <TopBar
@@ -987,7 +987,8 @@ export function AppShell() {
       ) : null}
 
       <main
-        className={`mx-auto grid max-w-[1800px] gap-5 px-4 py-5 sm:px-6 ${courseGridClass}`}
+        className={`workspace-main mx-auto grid max-w-[1800px] gap-5 px-4 py-5 sm:px-6 ${courseGridClass}`}
+        id="main-content"
       >
         {courseContentVisible && settings.sidebarPosition === "left" ? sidebar : null}
         <div className="grid min-w-0 gap-5">

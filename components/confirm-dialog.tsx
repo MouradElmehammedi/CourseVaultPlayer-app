@@ -24,10 +24,10 @@ export function ConfirmDialog({
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4 backdrop-blur-sm">
+    <div className="modal-backdrop fixed inset-0 z-50 grid place-items-center bg-slate-950/40 px-4 backdrop-blur-sm">
       <div
         aria-modal="true"
-        className="w-full max-w-md rounded-[24px] border border-[var(--line)] bg-[var(--panel)] p-6 shadow-[var(--shadow)]"
+        className="confirm-dialog w-full max-w-md border border-[var(--line)] bg-[var(--panel)] p-6 shadow-[var(--shadow)]"
         role="dialog"
       >
         <div className="flex items-start gap-4">

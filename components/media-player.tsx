@@ -380,10 +380,10 @@ export function MediaPlayer({
         </div>
       ) : null}
 
-      <div className="p-5 sm:p-6">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+      <div className="player-details p-5 sm:p-6">
+        <div className="player-heading flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="min-w-0">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[var(--soft)] px-3 py-1 text-xs font-bold uppercase tracking-normal text-[var(--primary)]">
+            <div className="player-media-label mb-3 inline-flex items-center gap-2 text-xs font-bold text-[var(--primary)]">
               {lecture.mediaType === "video" ? (
                 <Video aria-hidden="true" size={14} />
               ) : lecture.mediaType === "audio" ? (
@@ -401,7 +401,7 @@ export function MediaPlayer({
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="player-actions flex flex-wrap items-center gap-2">
             <button
               className="btn-secondary"
               disabled={!previousLecture}
@@ -426,12 +426,12 @@ export function MediaPlayer({
             </button>
             <button className="btn-primary" onClick={handleManualComplete} type="button">
               <CheckCircle2 aria-hidden="true" size={17} />
-              Mark Complete
+              Mark complete
             </button>
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="player-metadata mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {metadata.map(([label, value]) => (
             <div className="metadata-cell" key={label}>
               <span>{label}</span>
@@ -440,7 +440,7 @@ export function MediaPlayer({
           ))}
         </div>
 
-        <div className="mt-5 flex flex-col gap-3 rounded-[18px] border border-[var(--line)] bg-[var(--bg)] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="player-preferences mt-5 flex flex-col gap-3 border border-[var(--line)] bg-[var(--bg)] p-4 sm:flex-row sm:items-center sm:justify-between">
           <label className="flex items-center gap-3 text-sm font-semibold text-[var(--text)]">
             Playback speed
             <select
@@ -460,9 +460,9 @@ export function MediaPlayer({
           </p>
         </div>
 
-        <label className="mt-5 block">
+        <label className="player-notes mt-5 block">
           <span className="mb-2 block text-sm font-bold text-[var(--text)]">
-            My Notes
+            Lesson notes
           </span>
           <textarea
             className="field min-h-32 resize-y p-4 leading-6"

@@ -274,16 +274,17 @@ export function CourseSidebar({
 
   return (
     <aside className="course-sidebar flex">
-      <div className="flex items-start justify-between gap-3 border-b border-[var(--line)] p-4">
+      <div className="course-sidebar-heading flex items-start justify-between gap-3 border-b border-[var(--line)] p-4">
         <div>
-          <h2 className="text-base font-bold text-[var(--text)]">Course Content</h2>
+          <span className="course-sidebar-kicker">Curriculum</span>
+          <h2 className="text-base font-bold text-[var(--text)]">Course content</h2>
           <p className="mt-1 text-sm text-[var(--muted)]">
             {completion.completedLectures} / {completion.totalLectures} completed
           </p>
         </div>
       </div>
 
-      <div className="border-b border-[var(--line)] p-4">
+      <div className="course-sidebar-tools border-b border-[var(--line)] p-4">
         <div className="mb-4 flex items-center gap-3">
           <ProgressBar
             className="flex-1"
@@ -303,7 +304,7 @@ export function CourseSidebar({
           <input
             className="field course-search-input h-11"
             onChange={(event) => onSearchQueryChange(event.target.value)}
-            placeholder="Search lectures..."
+            placeholder="Find a lesson"
             type="search"
             value={searchQuery}
           />

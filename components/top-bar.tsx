@@ -224,23 +224,25 @@ export function TopBar({
 
   return (
     <header className="app-header sticky top-0 z-30 border-b border-[var(--line)] backdrop-blur-xl">
-      <div className="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6">
+      <div className="app-topbar-inner flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="grid size-10 shrink-0 place-items-center rounded-2xl bg-[var(--primary)] text-[var(--primary-contrast)] shadow-sm">
-            LV
+          <div className="app-brand-mark" aria-hidden="true">
+            <span className="brand-bracket">[</span>
+            <span className="brand-signal" />
+            <span className="brand-bracket">]</span>
           </div>
           <div className="app-brand-copy min-w-0">
-            <p className="text-sm font-semibold text-[var(--text)]">
-              LearnVault Player
+            <p className="app-brand-name text-sm font-semibold text-[var(--text)]">
+              LEARNVAULT
             </p>
             <p className="truncate text-xs text-[var(--muted)]">
-              {course ? course.name : "No course selected"}
+              {course ? course.name : "Private study workspace"}
             </p>
           </div>
         </div>
 
         {course ? (
-          <div className="hidden min-w-[170px] items-center gap-3 rounded-full border border-[var(--line)] bg-[var(--bg)] px-4 py-2 md:flex">
+          <div className="topbar-progress hidden min-w-[170px] items-center gap-3 rounded-full border border-[var(--line)] bg-[var(--bg)] px-4 py-2 md:flex">
             <span className="text-xs font-semibold text-[var(--muted)]">
               Progress
             </span>
@@ -292,16 +294,16 @@ export function TopBar({
             totalSeconds={pomodoroTotalSeconds}
           />
           <button
-            className="btn-secondary hidden sm:inline-flex"
+            className="btn-secondary topbar-folder-action hidden sm:inline-flex"
             onClick={onPickFolder}
             type="button"
           >
             <FolderOpen aria-hidden="true" size={17} />
-            Select New Folder
+            Add course
           </button>
           <button
             aria-label="Select new folder"
-            className="icon-button sm:hidden"
+            className="icon-button topbar-folder-mobile sm:hidden"
             onClick={onPickFolder}
             type="button"
           >

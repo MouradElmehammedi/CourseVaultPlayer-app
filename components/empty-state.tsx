@@ -137,30 +137,38 @@ export function EmptyState({
   };
 
   return (
-    <main className="px-5 py-8 sm:py-10">
-      <section className="mx-auto w-full max-w-6xl">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[var(--soft)] px-3 py-1 text-xs font-bold uppercase tracking-normal text-[var(--primary)]">
+    <main className="library-page px-5 py-8 sm:py-10" id="main-content">
+      <section className="library-shell mx-auto w-full max-w-6xl">
+        <div className="library-intro mb-6 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div className="library-heading">
+            <div className="library-kicker mb-3 inline-flex items-center gap-2 text-xs font-bold text-[var(--primary)]">
               <Library aria-hidden="true" size={14} />
-              Local library
+              Your local library
             </div>
-            <h2 className="text-2xl font-semibold text-[var(--text)]">
-              Saved courses
-            </h2>
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-              Progress is saved here. Resume reopens connected local folders
-              without uploading your course files.
+            <h1 className="text-2xl font-semibold text-[var(--text)]">
+              Pick up where you left off.
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted)]">
+              Reopen a saved course or add a folder to begin. Your files remain
+              on this computer; only your study progress is remembered.
             </p>
           </div>
-          <button
-            className="btn-secondary w-fit"
-            onClick={() => onPickFolder()}
-            type="button"
-          >
-            <FolderOpen aria-hidden="true" size={17} />
-            Add course
-          </button>
+          <div className="library-actions">
+            {courses.length > 0 ? (
+              <span className="library-count">
+                <strong>{courses.length}</strong>
+                {courses.length === 1 ? "course" : "courses"} in your library
+              </span>
+            ) : null}
+            <button
+              className="btn-primary w-fit"
+              onClick={() => onPickFolder()}
+              type="button"
+            >
+              <FolderOpen aria-hidden="true" size={17} />
+              Add course
+            </button>
+          </div>
         </div>
 
         {error ? (
@@ -170,7 +178,7 @@ export function EmptyState({
         ) : null}
 
         {courses.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="library-course-grid grid gap-4 md:grid-cols-2">
             {courses.map((course) => (
               <article className="course-card" key={course.id}>
                 <div className="course-card-top">
@@ -326,27 +334,32 @@ export function EmptyState({
             ))}
           </div>
         ) : (
-          <div className="rounded-[24px] border border-dashed border-[var(--line)] bg-[var(--panel)] p-8 text-center">
-            <Library
-              aria-hidden="true"
-              className="mx-auto mb-4 text-[var(--muted)]"
-              size={34}
-            />
-            <h3 className="text-lg font-semibold text-[var(--text)]">
-              No saved courses yet
-            </h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[var(--muted)]">
-              Select a folder once, then LearnVault will keep a progress card
-              here for your next study session.
-            </p>
-            <button
-              className="btn-primary mt-5 h-12 px-6"
-              onClick={() => onPickFolder()}
-              type="button"
-            >
-              <FolderOpen aria-hidden="true" size={18} />
-              Select Course Folder
-            </button>
+          <div className="library-empty">
+            <div className="library-empty-visual" aria-hidden="true">
+              <span className="library-folder-tab" />
+              <div className="library-folder-lines"><i /><i /><i /></div>
+              <span className="library-folder-plus">+</span>
+            </div>
+            <div className="library-empty-copy">
+              <span className="library-empty-index">Start here · 01</span>
+              <h2>Bring your first course into focus.</h2>
+              <p>
+                Choose the folder that contains your video or audio lessons.
+                LearnVault will arrange it into sections and remember every session.
+              </p>
+              <div className="library-empty-notes">
+                <span><Check aria-hidden="true" size={15} /> Nothing gets uploaded</span>
+                <span><Check aria-hidden="true" size={15} /> Folder structure is preserved</span>
+              </div>
+              <button
+                className="btn-primary h-12 px-6"
+                onClick={() => onPickFolder()}
+                type="button"
+              >
+                <FolderOpen aria-hidden="true" size={18} />
+                Choose course folder
+              </button>
+            </div>
           </div>
         )}
       </section>

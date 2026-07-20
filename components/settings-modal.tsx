@@ -32,13 +32,13 @@ export function SettingsModal({
   }
 
   return (
-    <div className="fixed inset-0 z-40 grid place-items-center bg-slate-950/40 px-4 backdrop-blur-sm">
+    <div className="modal-backdrop fixed inset-0 z-40 grid place-items-center bg-slate-950/40 px-4 backdrop-blur-sm">
       <div
         aria-modal="true"
-        className="max-h-[88vh] w-full max-w-2xl overflow-auto rounded-[24px] border border-[var(--line)] bg-[var(--panel)] p-6 shadow-[var(--shadow)]"
+        className="settings-dialog max-h-[88vh] w-full max-w-2xl overflow-auto border border-[var(--line)] bg-[var(--panel)] p-6 shadow-[var(--shadow)]"
         role="dialog"
       >
-        <div className="flex items-center justify-between gap-4 border-b border-[var(--line)] pb-4">
+        <div className="dialog-header flex items-center justify-between gap-4 border-b border-[var(--line)] pb-4">
           <div className="flex items-center gap-3">
             <span className="grid size-10 place-items-center rounded-full bg-[var(--soft)] text-[var(--primary)]">
               <Settings aria-hidden="true" size={20} />
@@ -175,7 +175,7 @@ export function SettingsModal({
               <span className="grid size-9 place-items-center rounded-lg bg-[var(--soft)] text-[var(--primary)]">
                 <Timer aria-hidden="true" size={18} />
               </span>
-              <h3 className="settings-title mb-0">Pomodoro Timer</h3>
+              <h3 className="settings-title mb-0">Focus timer</h3>
             </div>
 
             <label className="field-label">

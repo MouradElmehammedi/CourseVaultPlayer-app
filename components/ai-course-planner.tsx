@@ -185,7 +185,7 @@ export function AiCoursePlanner({
             <BrainCircuit aria-hidden="true" size={21} />
           </span>
           <span className="min-w-0">
-            <span className="ai-plan-kicker">AI Study Plan</span>
+            <span className="ai-plan-kicker">Study planner</span>
             <h2>{course.name}</h2>
           </span>
         </div>
@@ -200,7 +200,7 @@ export function AiCoursePlanner({
           ) : (
             <Sparkles aria-hidden="true" size={17} />
           )}
-          {loading ? "Planning" : "Ask AI"}
+          {loading ? "Planning" : "Refine with AI"}
         </button>
       </div>
 
@@ -306,7 +306,7 @@ export function AiCoursePlanner({
       <div className="ai-session-strip">
         <div className="ai-section-heading">
           <ListChecks aria-hidden="true" size={18} />
-          <h3>Next Sessions</h3>
+          <h3>Next sessions</h3>
         </div>
         <div className="ai-session-list">
           {plan.dayPreview.length > 0 ? (
@@ -355,7 +355,7 @@ export function AiCoursePlanner({
           ) : null}
           <div className="ai-advice-grid">
             <div>
-              <h4>Daily Plan</h4>
+              <h4>Daily plan</h4>
               <AdviceList items={response.advice.dailyPlan} />
             </div>
             <div>
@@ -367,7 +367,7 @@ export function AiCoursePlanner({
               <AdviceList items={response.advice.risks} />
             </div>
             <div>
-              <h4>Next Actions</h4>
+              <h4>Next actions</h4>
               <AdviceList items={response.advice.nextActions} />
             </div>
           </div>

@@ -1,15 +1,26 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Barlow_Condensed, IBM_Plex_Sans } from "next/font/google";
 import "./globals.css";
+import "./learning-platform.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
+  subsets: ["latin"],
+});
+
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
+  weight: ["500", "600", "700", "800", "900"],
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "LearnVault Player",
-  description: "A private local course media player with browser-saved progress.",
+  title: {
+    default: "LearnVault — Private course workspace",
+    template: "%s · LearnVault",
+  },
+  description:
+    "A private, offline-first workspace for studying downloaded video and audio courses.",
 };
 
 export default function RootLayout({
@@ -21,7 +32,7 @@ export default function RootLayout({
     <html
       lang="en"
       data-theme="light"
-      className={`${inter.variable} h-full antialiased`}
+      className={`${plexSans.variable} ${barlowCondensed.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>
@@ -31,7 +42,12 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }
